@@ -1,0 +1,17 @@
+Category_ID,Category,Description
+ART101,ARTS & CULTURE,"Explore the latest in visual arts, literature, theater, and cultural trends from around the world."
+BUF201,BUSINESS & FINANCE,"Stay updated on the financial markets, economic trends, and corporate news shaping the global economy."
+CRL301,CRIME & LAW,"Coverage of criminal investigations, legal cases, and justice system updates from courts and law enforcement."
+EDU401,EDUCATION,"Insights into academic policies, school and college systems, and innovations in learning for students of all ages."
+ENL501,ENTERTAINMENT & LIFESTYLE,"Get the latest buzz on celebrities, movies, music, fashion, and modern living trends."
+GNC601,GLOBAL NEWS & CULTURES ACROSS,Dive into international events and cultural stories from diverse regions around the globe.
+HWE701,HEALTH & WELLNESS,"Discover the latest health news, medical research, wellness tips, and public health updates."
+ION801,IN OTHER NEWS,Unique and lesser-known stories that capture attention from around the world.
+LGB901,LGBTQ+,"News, stories, and discussions on LGBTQ+ rights, culture, and community developments."
+POL102,POLITICS,"Comprehensive coverage of government policies, elections, and political movements shaping nations."
+REL202,RELIGION,"News and analysis of religious beliefs, practices, and events from faith communities worldwide."
+SCE302,SCIENCE & ENVIRONMENT,Discover breakthroughs in science and pressing issues related to the environment and sustainability.
+SPO402,SPORTS,"Stay on top of the latest scores, highlights, and news from the world of sports."
+TEC502,TECH,"Get insights into the latest technological innovations, gadgets, and trends shaping the future."
+TRA602,TRAVEL,"Find inspiration and updates on travel destinations, tips, and trends for globetrotters."
+USN702,U.S. NEWS,Breaking news and current events from across the United States.
