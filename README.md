@@ -1,4 +1,4 @@
-# Group-Assigment-2
+# Group-Assignment-2
 This is a repository for our News_Aggregator Database.
 
 The DB contains 4 tables. User, Article, Category, and User Preference. 
