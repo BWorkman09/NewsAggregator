@@ -42,5 +42,6 @@ Allow users to access preference-analytics and activity-analytics dashboards. â€
 
 
 
-#ERD
+# ERD
+
 ![GA_ERD2](https://github.com/user-attachments/assets/7cd69ff8-81a9-4eb5-a53e-e7faab4d10fe)
