@@ -1,11 +1,28 @@
-# Group-Assignment-2
-This is a repository for our News_Aggregator Database.
+# News Aggregator
+In this project, we have created a News Aggrgator in which users will be able to see tailored news feed based on their selected preferences.
+
+
+
+
+#Features
+
+Allow users to register so they can personalize their news feed. ​
+
+Allow anonymous access to ‘public’ sections of the site. ​
+
+Allow users to select their preferences from different news categories. ​
+
+Allow users to bookmark content. ​
+
+Allow users to access preference-analytics and activity-analytics dashboards. ​
+
+
+
+
+
+
 
 The DB contains 4 tables. User, Article, Category, and User Preference. 
-
-
-
-
 
 
 
