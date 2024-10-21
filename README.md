@@ -4,7 +4,7 @@ In this project, we have created a News Aggrgator in which users will be able to
 
 
 
-#Features
+# Features
 
 Allow users to register so they can personalize their news feed. ​
 
