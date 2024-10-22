@@ -1,5 +1,5 @@
 # News Aggregator
-In this project, we have created a News Aggrgator in which users will be able to see a tailored  news feed based on their selected preferences.
+In this project, we have created a News Aggregator in which users will be able to see a tailored news feed based on their selected preferences.
 
 
 
