@@ -12,3 +12,4 @@ result = cursor.execute('SELECT * from Article LIMIT 10')
 for row in result:
     print(row)
 db.close()
+
