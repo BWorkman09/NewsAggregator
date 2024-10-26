@@ -2,7 +2,7 @@
 import sqlite3
 
 # Set the name of the database file to be used for this exercise
-db_file = r"C:\Users\brett\Documents\GitHub\Group-Assigment-2\data\News_Aggregator.db"
+db_file = r"data\News_Aggregator.db"
 
 # Make a connection to the database
 cnn = sqlite3.connect(db_file)
