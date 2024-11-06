@@ -24,8 +24,7 @@ def create_user_from_dict(data: dict) -> User:
     # if user_id is not provided in the dictionary, it will default to none.
     return User(data.get('user_id', None), data['name'], data['email'], data['password_hash'])
 
-    
-    
+        
 class Category:
     def __init__(self, category_id: int, category: str, description: str):
         self.category_id = category_id
