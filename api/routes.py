@@ -1,108 +1,40 @@
-# API route definitions
-print("""
-      
-      
-      
-      Results of JOIN RELATIONSHIP Query 
-      
-      
-      """)
+from flask import jsonify, request, Blueprint
+import api.services as services
+from api.models import User, create_user_from_dict
+from datetime import datetime
 
 
 
+@api_bp.route("/users", methods=["GET"])
+def get_users():
+    """
+    Retrieve a list of all users or filter users by name.
+    If the query string parameter "starts_with" is provided, filter users by name.
+    If the query string parameter "contains" is provided, filter users by name containing the string.
 
-#QUERY1 JOIN RELATIONSHIP
-import sqlite3
+    Returns:
+        tuple: A tuple containing a JSON response with all users and an HTTP status code 200.
+    """
+    # Example: /api/users?starts_with=A
+    # Example: /api/users?contains=John
+    # Example: /api/users
+    
+    # Get the query string parameter "starts_with" from the request if it's there
+    user_name = request.args.get("starts_with")  # Accessing query string parameter
+    # If user_name is not provided
+    if not user_name:
+        # See if the query string parameter "contains" is provided
+        contains_user_name = request.args.get("contains")
+        if contains_user_name:
+            user_list = services.get_users_by_name(contains_user_name, starts_with=False)
+        # If neither "starts_with" nor "contains" is provided, get all users
+        else:
+            user_list = services.get_all_users()
+    else:
+        # If user_name is provided, filter users by name
+        user_list = services.get_users_by_name(user_name)
 
-# Set the name of the database file to be used for this exercise
-db_file = r"data\News_Aggregator.db"
+    # Convert the list of User objects to a list of dictionaries so that we can jsonify it
+    user_dict_list = [user.to_dict() for user in user_list]
+    return jsonify(user_dict_list), 200
 
-# Make a connection to the database
-cnn = sqlite3.connect(db_file)
-
-# Next make a cursor that can be used to run a query on the new connection
-cur = cnn.cursor()
-
-# get the first 10 records from the sales table
-query = cur.execute('''SELECT article.Title AS "Title", 
-category.Description AS "Category Description", 
-category.Category AS "Category"
-FROM Category
-INNER JOIN Article ON Category.Category_ID = article.Category_ID 
-LIMIT 10''' 
-)
-
-for row in query:
-    print(row)  
-
-
-
-# It's good practice to ensure that we close our connection to the database when we are done using it
-cnn.close()
-
-
-print("""
-      
-      
-      
-      Results of PARAMETERIZED Query 
-      
-      
-      """)
-
-
-#QUERY2 PARAMETERIZED
-
-
-# Make a connection to the database
-cnn = sqlite3.connect(db_file)
-
-# Next make a cursor that can be used to run a query on the new connection
-cur = cnn.cursor()
-
-
-#use one of the following Categories RELIGION, SPORTS, TECH, or TRAVEL
-print("Use one of the following, case sensitive, categores: RELIGION, SPORTS, TECH, or TRAVEL")
-user_input = input('Enter a Category: ')
-sql_query = f"SELECT * FROM article WHERE category = '{user_input}' LIMIT 10"
-#sql_query = f"SELECT distinct category FROM article LIMIT 10"
-query3 = cur.execute(sql_query)
-
-for row in query3:
-    print(row)  
-
-
-cnn.close()
-
-
-
-
-
-
-
-print("""
-      
-      
-      
-      Results of Aggregate Function Query 
-      
-      
-      
-      """)
-#QUERY3 AGGREGATE FUNCTION
-
-# Make a connection to the database
-cnn = sqlite3.connect(db_file)
-
-# Next make a cursor that can be used to run a query on the new connection
-cur = cnn.cursor()
-
-result= cur.execute("""
-    SELECT Category, MAX(Date), MIN(Date) FROM Article GROUP BY Category""")
-#use one of the following Categories RELIGION, SPORTS, TECH, or TRAVEL
-
-for row in result:
-    print(row)  
-
-
-cnn.close()
