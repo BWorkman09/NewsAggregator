@@ -19,6 +19,13 @@ class User:
             'password_hash': self.password_hash,
         }
     
+def create_user_from_dict(data: dict) -> User:
+    # create a user object from a dictionary.
+    # if user_id is not provided in the dictionary, it will default to none.
+    return User(data.get('user_id', None), data['name'], data['email'], data['password_hash'])
+
+    
+    
 class Category:
     def __init__(self, category_id: int, category: str, description: str):
         self.category_id = category_id
@@ -34,6 +41,7 @@ class Category:
             'category': self.category,
             'description': self.description,
         }
+
 
 class Article:
     def __init__(self, article_id: int, url: str, source: str, title: str, category: str, 
@@ -63,3 +71,4 @@ class Article:
             'authors': self.authors,
             'date': self.date.strftime('%Y-%m-%d') if isinstance(self.date, datetime) else self.date,
         }
+    
