@@ -1,73 +1,55 @@
-# Database models/classes
-from datetime import datetime
+from flask import Flask, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+import os
 
-class User:
-    def __init__(self, user_id: int, name: str, email: str, password_hash: str):
-        self.user_id = user_id
-        self.name = name
-        self.email = email
-        self.password_hash = password_hash
+# Initialize the Flask app
+app = Flask(__name__)
 
-    def __repr__(self):
-        return f'<User {self.user_id} - {self.name}>'
+# Database configuration
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", r"sqlite:///C:/Users/Aishu/OneDrive/Desktop/MABA/Assignments/Fall/Advanced Data Prep/Group Assignment/Group-Assigment-2/data/News_Aggregator.db")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    def to_dict(self):
-        return {
-            'user_id': self.user_id,
-            'name': self.name,
-            'email': self.email,
-            'password_hash': self.password_hash,
-        }
-    
-def create_user_from_dict(data: dict) -> User:
-    # create a user object from a dictionary.
-    # if user_id is not provided in the dictionary, it will default to none.
-    return User(data.get('user_id', None), data['name'], data['email'], data['password_hash'])
+# Initialize the database connection
+db = SQLAlchemy(app)
 
-        
-class Category:
-    def __init__(self, category_id: int, category: str, description: str):
-        self.category_id = category_id
-        self.category = category
-        self.description = description
+# Define the database models
 
-    def __repr__(self):
-        return f'<Category {self.category_id} - {self.category}>'
+class User(db.Model):
+    __tablename__ = 'User'
+    User_ID = db.Column(db.Integer, primary_key=True) 
+    Name = db.Column(db.String(100), nullable=False)
 
     def to_dict(self):
-        return {
-            'category_id': self.category_id,
-            'category': self.category,
-            'description': self.description,
-        }
+        return {"User_ID": self.User_ID, "Name": self.Name}
 
 
-class Article:
-    def __init__(self, article_id: int, url: str, source: str, title: str, category: str, 
-                 category_id: int, content: str, authors: str, date: datetime):
-        self.article_id = article_id
-        self.url = url
-        self.source = source
-        self.title = title
-        self.category = category
-        self.category_id = category_id
-        self.content = content
-        self.authors = authors
-        self.date = date
-
-    def __repr__(self):
-        return f'<Article {self.article_id} - {self.title}>'
+class UserPreference(db.Model):
+    __tablename__ = 'User_Preference'
+    ID = db.Column(db.Integer, primary_key=True)
+    User_ID = db.Column(db.Integer, db.ForeignKey('User_ID'), nullable=False)
+    Category_ID = db.Column(db.Integer, db.ForeignKey('Category_ID'), nullable=False)
 
     def to_dict(self):
-        return {
-            'article_id': self.article_id,
-            'url': self.url,
-            'source': self.source,
-            'title': self.title,
-            'category': self.category,
-            'category_id': self.category_id,
-            'content': self.content,
-            'authors': self.authors,
-            'date': self.date.strftime('%Y-%m-%d') if isinstance(self.date, datetime) else self.date,
-        }
-    
+        return {"ID": self.id, "User_ID": self.User_ID, "Category_ID": self.Category_ID}
+
+
+class Category(db.Model):
+    __tablename__ = 'Category'
+    Category_ID = db.Column(db.Integer, primary_key=True)
+    Category = db.Column(db.String(100), nullable=False)
+    Description = db.Column(db.String(100), nullable=False)
+
+    def to_dict(self):
+        return {"Category_ID": self.Category_ID, "Category": self.Category, "Description": self.Description}
+
+
+class Article(db.Model):
+    __tablename__ = 'Article'
+    Article_ID = db.Column(db.Integer, primary_key=True)
+    Title = db.Column(db.String(200), nullable=False)
+    Content = db.Column(db.Text, nullable=False)
+    Category_ID = db.Column(db.Integer, db.ForeignKey('Categories.id'), nullable=False)
+    Author = db.Column(db.String(100), nullable=False)
+
+    def to_dict(self):
+        return {"Article_ID": self.Article_ID, "Title": self.Title, "Content": self.Content, "Category_ID": self.Category_ID, "Author": self.Author}
