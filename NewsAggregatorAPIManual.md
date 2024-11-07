@@ -33,6 +33,12 @@
 }</code></pre>
     </li>
     <li>
+      <h4>GET /users/{user_name}</h4>
+      <p><strong>Description:</strong> Retrieve information for a specific user by name.</p>
+      <p><strong>Path Parameters:</strong> `user_name` - all users with that name appear.</p>
+      <p><strong>Response:</strong> JSON object with user details.</p>
+    </li>  
+    <li>
       <h4>POST /users</h4>
       <p><strong>Description:</strong> Create a new user.</p>
       <p><strong>Request Body:</strong> JSON object with `name` and `email`.</p>
