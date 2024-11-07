@@ -1,17 +1,3 @@
-from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
-import os
-
-# Initialize the Flask app
-app = Flask(__name__)
-
-# Database configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", r"sqlite:///C:/Users/Aishu/OneDrive/Desktop/MABA/Assignments/Fall/Advanced Data Prep/Group Assignment/Group-Assigment-2/data/News_Aggregator.db")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# Initialize the database connection
-db = SQLAlchemy(app)
-
 # Define the database models
 
 class User(db.Model):
