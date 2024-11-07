@@ -4,6 +4,42 @@ from typing import List
 from api.models import User, Category, Article
 from pathlib import Path
 
+def get_db_connection():
+    """
+    Establishes and returns a connection to the SQLite database.
+
+    The connection uses 'data/movie_data.db' as the database file and sets the
+    row factory to sqlite3.Row, allowing access to columns by name.
+
+    Returns:
+        sqlite3.Connection: A connection object to the SQLite database.
+    """
+    DATABASE_PATH = Path(__file__).parents[1] / "data"
+    connection = sqlite3.connect(DATABASE_PATH / 'News_Aggregator.db')
+    connection.row_factory = sqlite3.Row  # This allows you to access columns by name
+    return connection
+
+def run_query(query, params=None):
+    """
+    Run a query on the database and return the results.
+
+    Args:
+        query (str): The SQL query to be executed.
+        params (tuple, optional): The parameters to be passed to the query. Defaults to None.
+
+    Returns:
+        list of dict: A list of dictionaries representing the query results.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if params is not None:
+        cursor.execute(query, params)
+    else:
+        cursor.execute(query)
+    results = cursor.fetchall()
+    conn.close()
+    return results
+
 
 # ---------------------------------------------------------
 # Users
