@@ -4,6 +4,32 @@ from api.models import User, create_user_from_dict
 from datetime import datetime
 
 
+api_bp = Blueprint("api", __name__)
+
+@api_bp.route('/')
+def home():
+    """
+    Just a generic endpoint that we can use to test if the API is running.
+
+    Returns:
+        str: A timestamp string indicating the current time, alogn with a message.
+    """
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S') # Get the current time
+    welcome_message = f'Welcome to the User API!  The current time: {current_time}'
+    return welcome_message, 200
+
+@api_bp.route('/connection')
+def test_connection():
+    """
+    Test the database connection.
+
+    Returns:
+        tuple: A tuple containing a JSON response with a message and an HTTP status code.
+    """
+    services.get_db_connection()
+    return jsonify({'message': 'Successfully connected to the API'}), 200
+
+
 
 @api_bp.route("/users", methods=["GET"])
 def get_users():
