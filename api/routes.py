@@ -5,8 +5,7 @@ from datetime import date
 import os
 import random
 
-
-
+# Define API endpoints
  GET /api/users - Get a list of users
 @app.route('/api/users', methods=['GET'])
 def get_users():
