@@ -18,9 +18,19 @@ Allow users to access preference-analytics and activity-analytics dashboards. â€
 
 
 
+# Base URL
+The base URL for all the routes is /api. Here's a Markdown version of your OpenAPI specification:
+
+
 # Using the API Endpoints
 
+# Home Endpoint
+*URL: /
+*Method: GET
+*Summary: Displays a welcome message for the API.
+*Response:
 
+    200 OK: Welcome message
 
 # Article
 http://localhost:5000/api/articles - Lookup All Articles
