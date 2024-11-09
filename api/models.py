@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = 'user'  # Fixed: double underscores
+    __tablename__ = 'user'
     User_ID = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(100), nullable=False)
     preferences = db.relationship('UserPreference', backref='user', lazy=True)
@@ -15,24 +15,24 @@ class User(db.Model):
         }
    
 class UserPreference(db.Model):
-    __tablename__ = 'user_preference'  # Fixed: convention is lowercase with underscore
-    ID = db.Column(db.Integer, primary_key=True)
-    User_ID = db.Column(db.Integer, db.ForeignKey('user.User_ID'), nullable=False)  # Fixed: reference to correct table and column
-    Category_ID = db.Column(db.Integer, db.ForeignKey('category.Category_ID'), nullable=False)  # Fixed: reference to correct table
+    __tablename__ = 'user_preference'
     
+    User_ID = db.Column(db.String, db.ForeignKey('user.User_ID'), primary_key=True)
+    Category_ID = db.Column(db.String, db.ForeignKey('category.Category_ID'), primary_key=True)
+
     def to_dict(self):
         return {
-            "ID": self.ID,  # Fixed: using correct attribute name
             "User_ID": self.User_ID, 
             "Category_ID": self.Category_ID
         }
+
    
 class Category(db.Model):
-    __tablename__ = 'category'  # Fixed: lowercase convention
+    __tablename__ = 'category'  
     Category_ID = db.Column(db.Integer, primary_key=True)
     Category = db.Column(db.String(100), nullable=False)
     Description = db.Column(db.String(100), nullable=False)
-    articles = db.relationship('Article', backref='category', lazy=True)  # Added relationship
+    articles = db.relationship('Article', backref='category', lazy=True)  
     
     def to_dict(self):
         return {
@@ -42,12 +42,13 @@ class Category(db.Model):
         }
 
 class Article(db.Model):
-    __tablename__ = 'article'  # Fixed: lowercase convention
+    __tablename__ = 'article'
+    
     Article_ID = db.Column(db.Integer, primary_key=True)
     Title = db.Column(db.String(200), nullable=False)
     Content = db.Column(db.Text, nullable=False)
-    Category_ID = db.Column(db.Integer, db.ForeignKey('category.Category_ID'), nullable=False)  # Fixed: reference to correct table
-    Author = db.Column(db.String(100), nullable=False)
+    Category_ID = db.Column(db.Integer, db.ForeignKey('category.Category_ID'), nullable=False)
+    URL = db.Column(db.String(500), nullable=True)  # New field
     
     def to_dict(self):
         return {
@@ -55,5 +56,6 @@ class Article(db.Model):
             "Title": self.Title,
             "Content": self.Content,
             "Category_ID": self.Category_ID,
-            "Author": self.Author
+            "URL": self.URL
         }
+    
