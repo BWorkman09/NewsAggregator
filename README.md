@@ -56,6 +56,10 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 - `/articles/by-category-name?category=ARTS%20%26%20CULTURE` - Retrieve articles by category (e.g., "Arts & Culture").
 - `/articles/by-category-name?category=ARTS%20%26%20CULTURE&limit=1` - Retrieve a limited number of articles by category (e.g., 1 article from "Arts & Culture").
 
+### Response Codes
+- `200 OK`: Articles found.
+- `404 Not Found`: Articles not found.
+
 # Category Endpoints
 
 ## Lookup All Categories
@@ -66,6 +70,10 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 - `/categories` - Retrieve all categories.
 - `/categories?limit=10` - Retrieve a limited number of categories (e.g., 10 categories).
 
+### Response Codes
+- `200 OK`: Categories found.
+- `404 Not Found`: Categories not found.
+
 # User Preferences Endpoints
 
 ## Lookup User Preferences
@@ -75,6 +83,11 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 ### Parameters
 - `/user_preferences` - Retrieve all user preferences.
 - `/user_preferences?limit=10` - Retrieve a limited number of user preferences (e.g., 10 preferences).
+
+### Response Codes
+- `200 OK`: User preferences found.
+- `404 Not Found`: User preferences not found.
+
 
 
 
