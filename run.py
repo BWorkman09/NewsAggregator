@@ -1,10 +1,11 @@
-# Entry point script to start the Flask application
 from flask import Flask
 from flask_cors import CORS
 from flasgger import Swagger # Only required if you want to use Swagger UI
 import yaml
 from api.routes import api_bp
 from pathlib import Path
+from flask_sqlalchemy import SQLAlchemy
+from api.models import db, User, Article, Category, UserPreference
 
 # Using Blueprints to organize routes in a Flask application
 # https://flask.palletsprojects.com/en/2.0.x/blueprints/
@@ -39,18 +40,32 @@ def create_app():
     return app
 
 
-# This version of the create_app function does not use Swagger
-# If you do not want to use Swagger, you can use this version of the create_app function
-def create_app_no_swagger():
-    app = Flask(__name__)
 
-    # Register Blueprints
-    # Don't like the prefix?  You can remove it or change it to something else.
-    app.register_blueprint(api_bp, url_prefix="/api")
+def create_app():
+   app = Flask(__name__)
+   CORS(app)
 
-    return app
+   # Database setup
+   DATABASE_PATH = Path(__file__).parent / "data" / "News_Aggregator.db"
+   app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
+   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+   # Initialize SQLAlchemy with the app
+   db.init_app(app)
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+   # Import models (after db initialization)
+   from api.models import User, Article, Category, UserPreference
+
+   # Import and register blueprint
+   from api.routes import api_bp
+   app.register_blueprint(api_bp, url_prefix='/api')
+
+   # Create tables
+   with app.app_context():
+       db.create_all()
+       
+   return app
+
+if __name__ == '__main__':
+   app = create_app()
+   app.run(debug=True)
