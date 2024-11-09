@@ -1,6 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError
 from api.models import db, User, Article, Category, UserPreference
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from pathlib import Path
 import sqlite3
 
@@ -27,18 +27,21 @@ def get_users_by_name(name_filter: str, starts_with: bool = True) -> List[User]:
         return User.query.filter(User.Name.like(f'{name_filter}%')).all()
     return User.query.filter(User.Name.like(f'%{name_filter}%')).all()
 
-def create_user(name: str):
+def create_user(name: str, email: str):
     """
     Create a new user in the database.
     """
-    new_user = User(Name=name)
+    new_user = User(Name=name, Email=email)
     try:
         db.session.add(new_user)
         db.session.commit()
+        db.session.refresh(new_user)
         return new_user
     except Exception as e:
         db.session.rollback()
         raise e
+
+  
 
 # ---------------------------------------------------------
 # Category Functions

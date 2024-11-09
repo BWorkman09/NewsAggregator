@@ -2,6 +2,8 @@ from flask import jsonify, request, Blueprint
 import api.services as services
 from datetime import datetime
 import sqlite3
+from .models import User, db
+from sqlalchemy.exc import IntegrityError
 
 api_bp = Blueprint('api', __name__)
 
@@ -70,30 +72,57 @@ def get_users():
     return jsonify(user_dict_list), 200
 
 @api_bp.route('/users', methods=['POST'])
-def create_user():
+def create_user_route():
     """
-    Create a new user.
+    Create a new user via POST request.
+    Expects JSON data with 'Name' and 'Email' fields.
     """
-    data = request.get_json()
-    
-    # Validate request data
-    if not data or 'name' not in data:
-        return jsonify({'error': 'Name is required'}), 400
-    
     try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+            
+        name = data.get('Name')
+        email = data.get('Email')
+        
+        if not name or not email:
+            return jsonify({'error': 'Name and Email are required'}), 400
+        
+        # Check if user already exists
+        existing_user = User.query.filter_by(Email=email).first()
+        if existing_user:
+            return jsonify({'error': 'Email already exists'}), 409
+            
         # Create new user
-        new_user = services.create_user(data['name'])
+        new_user = User(Name=name, Email=email)
+        db.session.add(new_user)
+        db.session.flush()  # Flush the session to get the ID
         
-        # Convert to dictionary immediately after creation
-        response_data = {
-            "User_ID": new_user.User_ID,
-            "Name": new_user.Name
-        }
+        # Get the user data before commit
+        user_data = new_user.to_dict()
         
-        return jsonify(response_data), 201
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'User created successfully',
+            'user': user_data
+        }), 201
+        
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({
+            'error': 'Database integrity error',
+            'message': 'Email must be unique'
+        }), 409
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        db.session.rollback()
+        print(f"Error creating user: {str(e)}")  # For debugging
+        return jsonify({
+            'error': 'Failed to create user',
+            'message': str(e)
+        }), 500
 
 
 # ---------------------------------------------------------
@@ -117,6 +146,7 @@ def get_categories():
     # Convert the list of Category objects to a list of dictionaries for JSON serialization
     category_dict_list = [category.to_dict() for category in category_list]
     return jsonify(category_dict_list), 200
+    
 
 
 # ---------------------------------------------------------
@@ -240,5 +270,6 @@ def get_user_preferences():
 
 
 #print("Available functions in services:", [func for func in dir(services) if callable(getattr(services, func)) and not func.startswith("_")])
+
 
 

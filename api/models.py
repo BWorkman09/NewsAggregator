@@ -4,17 +4,20 @@ db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
-    User_ID = db.Column(db.Integer, primary_key=True)
+    User_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Name = db.Column(db.String(100), nullable=False)
-    Email = db.Column(db.String(120), unique=True, nullable=False)  # Added email field
+    Email = db.Column(db.String(120), unique=True, nullable=False)
     preferences = db.relationship('UserPreference', backref='user', lazy=True)
-   
+    
     def to_dict(self):
         return {
             "User_ID": self.User_ID,
             "Name": self.Name,
             "Email": self.Email
         }
+    
+    def __repr__(self):
+        return f'<User {self.Name}>'
    
 class UserPreference(db.Model):
     __tablename__ = 'user_preference'
