@@ -6,12 +6,14 @@ class User(db.Model):
     __tablename__ = 'user'
     User_ID = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(100), nullable=False)
+    Email = db.Column(db.String(120), unique=True, nullable=False)  # Added email field
     preferences = db.relationship('UserPreference', backref='user', lazy=True)
    
     def to_dict(self):
         return {
             "User_ID": self.User_ID,
-            "Name": self.Name
+            "Name": self.Name,
+            "Email": self.Email
         }
    
 class UserPreference(db.Model):
@@ -58,4 +60,5 @@ class Article(db.Model):
             "Category_ID": self.Category_ID,
             "URL": self.URL
         }
+    
     
