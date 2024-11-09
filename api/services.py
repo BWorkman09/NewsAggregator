@@ -3,8 +3,7 @@ from api.models import db, User, Article, Category, UserPreference
 from typing import List, Optional, Dict, Any, Tuple
 from pathlib import Path
 import sqlite3
-
-
+import re
 
 # ---------------------------------------------------------
 # Users Functions
@@ -40,6 +39,31 @@ def create_user(name: str, email: str):
     except Exception as e:
         db.session.rollback()
         raise e
+
+def update_user_name(user_id: str, new_name: str):
+    """
+    Update a user's name in the database.
+    """
+    try:
+        # Validate user ID format
+        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+            raise ValueError('Invalid user ID format. Must be XX-XXXXXXX')
+            
+        # Validate new name
+        if not new_name or not isinstance(new_name, str):
+            raise ValueError('Name is required and must be a string')
+
+        user = User.query.filter_by(User_ID=user_id).first()
+        if not user:
+            raise ValueError(f'No user found with ID {user_id}')
+
+        user.Name = new_name
+        db.session.commit()
+        return user.to_dict()
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
 
 def delete_user(user_id: str):
     """

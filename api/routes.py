@@ -1,10 +1,12 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
+from api.services import update_user_name
 from datetime import datetime
 import sqlite3
 from .models import User, db
 from sqlalchemy.exc import IntegrityError
 import re
+
 
 api_bp = Blueprint('api', __name__)
 
@@ -161,6 +163,47 @@ def delete_user_route(user_id):
         print(f"Error deleting user: {str(e)}")  # For debugging
         return jsonify({
             'error': 'Failed to delete user',
+            'message': str(e)
+        }), 500
+    
+@api_bp.route('/users/<string:user_id>', methods=['PUT'])
+def update_user_route(user_id):
+    """
+    Update a user's name via PUT request.
+    Expects JSON data with 'Name' field.
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'error': 'No data provided',
+                'message': 'Request body is required'
+            }), 400
+            
+        new_name = data.get('Name')
+        if not new_name:
+            return jsonify({
+                'error': 'Name is required',
+                'message': 'Name field must be provided'
+            }), 400
+
+        updated_user = update_user_name(user_id, new_name)
+        
+        return jsonify({
+            'message': 'User updated successfully',
+            'user': updated_user
+        }), 200
+
+    except ValueError as e:
+        return jsonify({
+            'error': 'Validation error',
+            'message': str(e)
+        }), 400
+    except Exception as e:
+        print(f"Error updating user: {str(e)}")  # For debugging
+        return jsonify({
+            'error': 'Failed to update user',
             'message': str(e)
         }), 500
     
