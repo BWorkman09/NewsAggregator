@@ -79,43 +79,43 @@ def create_user_route():
     """
     try:
         data = request.get_json()
-        
+       
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-            
+           
         name = data.get('Name')
         email = data.get('Email')
-        
+       
         if not name or not email:
             return jsonify({'error': 'Name and Email are required'}), 400
-        
+       
         # Check if user already exists
         existing_user = User.query.filter_by(Email=email).first()
         if existing_user:
             return jsonify({'error': 'Email already exists'}), 409
-            
-        # Create new user
+           
+        # Create new user with automatic ID generation
         new_user = User(Name=name, Email=email)
         db.session.add(new_user)
         db.session.flush()  # Flush the session to get the ID
-        
+       
         # Get the user data before commit
         user_data = new_user.to_dict()
-        
+       
         db.session.commit()
-        
+       
         return jsonify({
             'message': 'User created successfully',
             'user': user_data
         }), 201
-        
+       
     except IntegrityError as e:
         db.session.rollback()
         return jsonify({
             'error': 'Database integrity error',
             'message': 'Email must be unique'
         }), 409
-        
+       
     except Exception as e:
         db.session.rollback()
         print(f"Error creating user: {str(e)}")  # For debugging

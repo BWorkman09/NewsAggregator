@@ -1,23 +1,34 @@
 from flask_sqlalchemy import SQLAlchemy
+import random
 
 db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
-    User_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    User_ID = db.Column(db.String(10), primary_key=True)  # Changed to String to handle "XX-XXXXXXX" format
     Name = db.Column(db.String(100), nullable=False)
     Email = db.Column(db.String(120), unique=True, nullable=False)
     preferences = db.relationship('UserPreference', backref='user', lazy=True)
-    
+
+    @staticmethod
+    def generate_user_id():
+        """Generate ID in format: XX-XXXXXXX"""
+        prefix = "29"  # Using 29 as per your example
+        # Generate a 7-digit number
+        num = f"{random.randint(1000000, 9999999):07d}"
+        return f"{prefix}-{num}"
+
+    def __init__(self, Name, Email):
+        self.User_ID = User.generate_user_id()
+        self.Name = Name
+        self.Email = Email
+   
     def to_dict(self):
         return {
             "User_ID": self.User_ID,
             "Name": self.Name,
             "Email": self.Email
         }
-    
-    def __repr__(self):
-        return f'<User {self.Name}>'
    
 class UserPreference(db.Model):
     __tablename__ = 'user_preference'
