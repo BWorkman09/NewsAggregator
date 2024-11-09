@@ -42,6 +42,18 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 - `/users?limit=10` - Retrieve a limited number of users (e.g., 10 users).
 - `/users?name=Ricky` - Retrieve users by a specific name (e.g., "Ricky").
 
+## Update User by ID
+
+- **URL**: `/users/{user_id}`
+- **Method**: `PUT`
+- **Summary**: Update an existing user.
+- **Parameters**:
+  - `user_id`: The unique identifier of the user.
+- **Request Body**:
+  - `name`: User's new name.
+- **Response**:
+  - `200 OK`: User updated successfully.
+
 ## Delete User by ID
 
 - **URL**: `/users/{user_id}`
