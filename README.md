@@ -30,13 +30,15 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 *Summary: Displays a welcome message for the API.
 *Response:
 
-    200 OK: Welcome message
+    *200 OK: Welcome message
+
+
 
 # Article
-http://localhost:5000/api/articles - Lookup All Articles
-http://localhost:5000/api/articles?limit=10 - Lookup Limited # of user Articles
-http://localhost:5000/api/articles/by-category-name?category=ARTS%20%26%20CULTURE - Lookup Articles by Category
-http://localhost:5000/api/articles/by-category-name?category=ARTS%20%26%20CULTURE&limit=1 - Lookup Articles by Category with Limits
+*http://localhost:5000/api/articles - Lookup All Articles
+*http://localhost:5000/api/articles?limit=10 - Lookup Limited # of user Articles
+*http://localhost:5000/api/articles/by-category-name?category=ARTS%20%26%20CULTURE - Lookup Articles by Category
+*http://localhost:5000/api/articles/by-category-name?category=ARTS%20%26%20CULTURE&limit=1 - Lookup Articles by Category with Limits
 
 # Categories
 http://localhost:5000/api/categories - Lookup All Categories
