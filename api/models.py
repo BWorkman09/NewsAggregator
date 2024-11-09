@@ -5,15 +5,21 @@ db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
-    User_ID = db.Column(db.String(10), primary_key=True)  # Changed to String to handle "XX-XXXXXXX" format
+    User_ID = db.Column(db.String(10), primary_key=True)
     Name = db.Column(db.String(100), nullable=False)
     Email = db.Column(db.String(120), unique=True, nullable=False)
-    preferences = db.relationship('UserPreference', backref='user', lazy=True)
+    preferences = db.relationship(
+        'UserPreference', 
+        backref='user', 
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
 
     @staticmethod
     def generate_user_id():
-        """Generate ID in format: XX-XXXXXXX"""
-        prefix = "29"  # Using 29 as per your example
+        """Generate ID in format: XX-XXXXXXX with random 2-digit prefix"""
+        # Generate random 2-digit prefix (10-99)
+        prefix = f"{random.randint(10, 99)}"
         # Generate a 7-digit number
         num = f"{random.randint(1000000, 9999999):07d}"
         return f"{prefix}-{num}"
@@ -29,7 +35,7 @@ class User(db.Model):
             "Name": self.Name,
             "Email": self.Email
         }
-   
+
 class UserPreference(db.Model):
     __tablename__ = 'user_preference'
     

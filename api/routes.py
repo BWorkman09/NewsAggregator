@@ -4,6 +4,7 @@ from datetime import datetime
 import sqlite3
 from .models import User, db
 from sqlalchemy.exc import IntegrityError
+import re
 
 api_bp = Blueprint('api', __name__)
 
@@ -124,6 +125,45 @@ def create_user_route():
             'message': str(e)
         }), 500
 
+@api_bp.route('/users/<string:user_id>', methods=['DELETE'])
+def delete_user_route(user_id):
+    """
+    Delete a user via DELETE request.
+    Expects user_id in format XX-XXXXXXX
+    """
+    try:
+        # Validate user_id format
+        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+            return jsonify({
+                'error': 'Invalid user ID format',
+                'message': 'User ID must be in format XX-XXXXXXX'
+            }), 400
+
+        # Check if user exists
+        user = User.query.filter_by(User_ID=user_id).first()
+        if not user:
+            return jsonify({
+                'error': 'User not found',
+                'message': f'No user found with ID {user_id}'
+            }), 404
+
+        # Delete user and their preferences (will cascade if set up in model)
+        db.session.delete(user)
+        db.session.commit()
+
+        return jsonify({
+            'message': 'User deleted successfully',
+            'user_id': user_id
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting user: {str(e)}")  # For debugging
+        return jsonify({
+            'error': 'Failed to delete user',
+            'message': str(e)
+        }), 500
+    
 
 # ---------------------------------------------------------
 # Category 

@@ -41,7 +41,20 @@ def create_user(name: str, email: str):
         db.session.rollback()
         raise e
 
-  
+def delete_user(user_id: str):
+    """
+    Delete a user from the database.
+    """
+    try:
+        user = User.query.filter_by(User_ID=user_id).first()
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return True
+        return False
+    except Exception as e:
+        db.session.rollback()
+        raise e
 
 # ---------------------------------------------------------
 # Category Functions
