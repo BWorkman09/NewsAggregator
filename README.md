@@ -108,10 +108,3 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 ### Response Codes
 - `200 OK`: User preferences found.
 - `404 Not Found`: User preferences not found.
-
-
-
-
-
-
-
