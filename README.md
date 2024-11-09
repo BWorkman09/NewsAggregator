@@ -32,12 +32,15 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 
     *200 OK: Welcome message
 
-# User
-*URL: /users - Lookup All Users
-*Method: GET
-*Parameters
-   */users?limit=10 Lookup Limited # of Users
-   */users?name=Ricky Lookup Users by Name
+# User Endpoints
+
+## Lookup All Users
+- **URL**: `/users`
+- **Method**: `GET`
+  
+### Parameters
+- `/users?limit=10` - Retrieve a limited number of users (e.g., 10 users).
+- `/users?name=Ricky` - Retrieve users by a specific name (e.g., "Ricky").
    
    
 http://localhost:5000/api/users?limit=10 Lookup Limited # of Users
