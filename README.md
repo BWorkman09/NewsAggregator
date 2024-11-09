@@ -41,25 +41,41 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 ### Parameters
 - `/users?limit=10` - Retrieve a limited number of users (e.g., 10 users).
 - `/users?name=Ricky` - Retrieve users by a specific name (e.g., "Ricky").
-   
-   
-http://localhost:5000/api/users?limit=10 Lookup Limited # of Users
-http://localhost:5000/api/users?name=Ricky Lookup Users by Name
 
 
-# Article
-*http://localhost:5000/api/articles - Lookup All Articles
-*http://localhost:5000/api/articles?limit=10 - Lookup Limited # of user Articles
-*http://localhost:5000/api/articles/by-category-name?category=ARTS%20%26%20CULTURE - Lookup Articles by Category
-*http://localhost:5000/api/articles/by-category-name?category=ARTS%20%26%20CULTURE&limit=1 - Lookup Articles by Category with Limits
 
-# Categories
-http://localhost:5000/api/categories - Lookup All Categories
-http://localhost:5000/api/categories?limit=10 - Lookup Limited # of Categories
+# Article Endpoints
 
-# UserP
-http://localhost:5000/api/user_preferences - Lookup User Preferences
-http://localhost:5000/api/user_preferences?limit=10 - Lookup Limited # of user Preferences
+## Lookup All Articles
+- **URL**: `/articles`
+- **Method**: `GET`
+
+### Parameters
+- `/articles` - Retrieve all articles.
+- `/articles?limit=10` - Retrieve a limited number of articles (e.g., 10 articles).
+- `/articles/by-category-name?category=ARTS%20%26%20CULTURE` - Retrieve articles by category (e.g., "Arts & Culture").
+- `/articles/by-category-name?category=ARTS%20%26%20CULTURE&limit=1` - Retrieve a limited number of articles by category (e.g., 1 article from "Arts & Culture").
+
+# Category Endpoints
+
+## Lookup All Categories
+- **URL**: `/categories`
+- **Method**: `GET`
+
+### Parameters
+- `/categories` - Retrieve all categories.
+- `/categories?limit=10` - Retrieve a limited number of categories (e.g., 10 categories).
+
+# User Preferences Endpoints
+
+## Lookup User Preferences
+- **URL**: `/user_preferences`
+- **Method**: `GET`
+
+### Parameters
+- `/user_preferences` - Retrieve all user preferences.
+- `/user_preferences?limit=10` - Retrieve a limited number of user preferences (e.g., 10 preferences).
+
 
 
 
