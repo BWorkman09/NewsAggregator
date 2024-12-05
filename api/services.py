@@ -147,10 +147,21 @@ def get_all_user_preferences(limit: int = None) -> List[UserPreference]:
     
     Args:
         limit (int): Maximum number of UserPreference objects to retrieve.
-
     Returns:
         List[UserPreference]: A list of UserPreference objects up to the specified limit.
     """
-    return UserPreference.query.limit(limit).all()
+    query = db.session.query(
+        UserPreference, 
+        Category.Category  # Using the Category column directly
+    ).join(
+        Category,
+        UserPreference.Category_ID == Category.Category_ID
+    )
+    
+    if limit:
+        query = query.limit(limit)
+    
+    return query.all()
+
 
 

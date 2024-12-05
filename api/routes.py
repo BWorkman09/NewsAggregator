@@ -335,20 +335,25 @@ def create_article():
 # ---------------------------------------------------------
 @api_bp.route('/user_preferences')
 def get_user_preferences():
-   """
-   Retrieve a list of user preferences with optional limit parameter.
-   Returns:
-       tuple: A tuple containing a JSON response with user preferences and an HTTP status code 200.
-   """
-   # Get the 'limit' parameter from the URL if provided, otherwise None for all records
-   limit = request.args.get('limit', default=None, type=int)
-  
-   # Get user preferences from service
-   user_preferences_list = services.get_all_user_preferences(limit)
-  
-   # Convert the list of UserPreference objects to dictionaries
-   user_preferences_dict_list = [preference.to_dict() for preference in user_preferences_list]
-   return jsonify(user_preferences_dict_list), 200
+    """
+    Retrieve a list of user preferences with optional limit parameter.
+    Returns:
+        tuple: A tuple containing a JSON response with user preferences and an HTTP status code 200.
+    """
+    limit = request.args.get('limit', default=None, type=int)
+    
+    user_preferences_with_categories = services.get_all_user_preferences(limit)
+    
+    user_preferences_dict_list = [
+        {
+            "User_ID": pref[0].User_ID,
+            "Category_ID": pref[0].Category_ID,  # Will return something like "ENL501"
+            "Category": pref[1]  # Will return something like "SPORTS"
+        }
+        for pref in user_preferences_with_categories
+    ]
+    
+    return jsonify(user_preferences_dict_list), 200
 
 
 
