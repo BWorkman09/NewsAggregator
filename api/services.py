@@ -164,4 +164,60 @@ def get_all_user_preferences(limit: int = None) -> List[UserPreference]:
     return query.all()
 
 
+def update_user_preference(user_id: str, category_id: str):
+    """
+    Update a user's preference in the database.
+    
+    Args:
+        user_id (str): The user's ID in format XX-XXXXXXX
+        category_id (str): Category ID to add as user's preference
+        
+    Returns:
+        dict: Updated user preference with category information
+    """
+    try:
+        # Validate user ID format
+        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+            raise ValueError('Invalid user ID format. Must be XX-XXXXXXX')
+        
+        # Check if user exists
+        user = User.query.filter_by(User_ID=user_id).first()
+        if not user:
+            raise ValueError(f'No user found with ID {user_id}')
+        
+        # Check if category exists
+        category = Category.query.filter_by(Category_ID=category_id).first()
+        if not category:
+            raise ValueError(f'Invalid category ID: {category_id}')
+        
+        # Create new preference (will replace if exists due to primary key constraint)
+        preference = UserPreference(User_ID=user_id, Category_ID=category_id)
+        db.session.merge(preference)
+        db.session.commit()
+        
+        # Get updated preference with category information
+        result = db.session.query(
+            UserPreference, 
+            Category.Category
+        ).join(
+            Category,
+            UserPreference.Category_ID == Category.Category_ID
+        ).filter(
+            UserPreference.User_ID == user_id,
+            UserPreference.Category_ID == category_id
+        ).first()
+        
+        if result:
+            return {
+                "User_ID": result[0].User_ID,
+                "Category_ID": result[0].Category_ID,
+                "Category": result[1]
+            }
+        return None
+        
+    except Exception as e:
+        db.session.rollback()
+        raise e
+    
+    
 

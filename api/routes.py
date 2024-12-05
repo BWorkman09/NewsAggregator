@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
-from api.services import update_user_name
+from api.services import update_user_name, update_user_preference
 from datetime import datetime
 import sqlite3
 from .models import User, db
@@ -356,8 +356,55 @@ def get_user_preferences():
     return jsonify(user_preferences_dict_list), 200
 
 
+@api_bp.route('/user_preferences/<string:user_id>', methods=['PUT'])
+def update_user_preference_route(user_id):
+    """
+    Update a user's preference via PUT request.
+    Expects JSON data with 'Category_ID' field.
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'error': 'No data provided',
+                'message': 'Request body is required'
+            }), 400
+            
+        category_id = data.get('Category_ID')
+        if not category_id:
+            return jsonify({
+                'error': 'Category_ID is required',
+                'message': 'Category_ID field must be provided'
+            }), 400
 
-#print("Available functions in services:", [func for func in dir(services) if callable(getattr(services, func)) and not func.startswith("_")])
+        updated_preference = update_user_preference(user_id, category_id)
+        
+        if updated_preference:
+            return jsonify({
+                'message': 'User preference updated successfully',
+                'preference': updated_preference
+            }), 200
+        else:
+            return jsonify({
+                'error': 'Failed to update preference',
+                'message': 'Unable to create or update preference'
+            }), 500
+
+    except ValueError as e:
+        return jsonify({
+            'error': 'Validation error',
+            'message': str(e)
+        }), 400
+    except Exception as e:
+        print(f"Error updating user preference: {str(e)}")  # For debugging
+        return jsonify({
+            'error': 'Failed to update user preference',
+            'message': str(e)
+        }), 500
+
+
+print("Available functions in services:", [func for func in dir(services) if callable(getattr(services, func)) and not func.startswith("_")])
 
 
 
