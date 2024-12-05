@@ -220,4 +220,34 @@ def update_user_preference(user_id: str, category_id: str):
         raise e
     
     
+def delete_user_preference(user_id: str, category_id: str):
+    """
+    Delete a specific user preference from the database.
+    
+    Args:
+        user_id (str): The user's ID in format XX-XXXXXXX
+        category_id (str): Category ID to remove from user's preferences
+    
+    Returns:
+        bool: True if preference was deleted, False if not found
+    """
+    try:
+        # Validate user ID format
+        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+            raise ValueError('Invalid user ID format. Must be XX-XXXXXXX')
+        
+        preference = UserPreference.query.filter_by(
+            User_ID=user_id,
+            Category_ID=category_id
+        ).first()
+        
+        if preference:
+            db.session.delete(preference)
+            db.session.commit()
+            return True
+        return False
+        
+    except Exception as e:
+        db.session.rollback()
+        raise e    
 

@@ -1,12 +1,11 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
-from api.services import update_user_name, update_user_preference
+from api.services import update_user_name, update_user_preference, delete_user_preference
 from datetime import datetime
 import sqlite3
 from .models import User, db
 from sqlalchemy.exc import IntegrityError
 import re
-
 
 api_bp = Blueprint('api', __name__)
 
@@ -403,8 +402,45 @@ def update_user_preference_route(user_id):
             'message': str(e)
         }), 500
 
+@api_bp.route('/user_preferences/<string:user_id>/<string:category_id>', methods=['DELETE'])
+def delete_user_preference_route(user_id, category_id):
+    """
+    Delete a specific user preference via DELETE request.
+    """
+    try:
+        # Validate user_id format
+        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+            return jsonify({
+                'error': 'Invalid user ID format',
+                'message': 'User ID must be in format XX-XXXXXXX'
+            }), 400
 
-print("Available functions in services:", [func for func in dir(services) if callable(getattr(services, func)) and not func.startswith("_")])
+        # Check if preference was deleted
+        if delete_user_preference(user_id, category_id):
+            return jsonify({
+                'message': 'User preference deleted successfully',
+                'user_id': user_id,
+                'category_id': category_id
+            }), 200
+        else:
+            return jsonify({
+                'error': 'Preference not found',
+                'message': f'No preference found for user {user_id} and category {category_id}'
+            }), 404
+
+    except ValueError as e:
+        return jsonify({
+            'error': 'Validation error',
+            'message': str(e)
+        }), 400
+    except Exception as e:
+        print(f"Error deleting user preference: {str(e)}")  # For debugging
+        return jsonify({
+            'error': 'Failed to delete user preference',
+            'message': str(e)
+        }), 500
+    
+#print("Available functions in services:", [func for func in dir(services) if callable(getattr(services, func)) and not func.startswith("_")])
 
 
 
