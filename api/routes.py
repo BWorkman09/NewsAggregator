@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
-from api.services import update_user_name, update_user_preference, delete_user_preference
+from api.services import update_user_name, update_user_preference, delete_user_preference, get_user_preference_stats
 from datetime import datetime
 import sqlite3
 from .models import User, db
@@ -438,7 +438,23 @@ def delete_user_preference_route(user_id, category_id):
             'error': 'Failed to delete user preference',
             'message': str(e)
         }), 500
-    
+
+@api_bp.route('/user-preferences/stats')
+def get_preference_statistics():
+    """
+    Get statistics about user preferences.
+    Returns:
+        JSON response with category counts and HTTP status 200
+    """
+    try:
+        stats = services.get_user_preference_stats()
+        response = jsonify(stats)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 #print("Available functions in services:", [func for func in dir(services) if callable(getattr(services, func)) and not func.startswith("_")])
 
 

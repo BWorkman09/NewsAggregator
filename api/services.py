@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Any, Tuple
 from pathlib import Path
 import sqlite3
 import re
+from sqlalchemy import func
 
 # ---------------------------------------------------------
 # Users Functions
@@ -252,3 +253,28 @@ def delete_user_preference(user_id: str, category_id: str):
         db.session.rollback()
         raise e    
 
+def get_user_preference_stats() -> List[Dict]:
+    """
+    Get count of users for each preference category.
+    Returns:
+        List[Dict]: List of categories with their user counts
+    """
+    stats = (
+        db.session.query(
+            Category.Category_ID,
+            Category.Category,
+            func.count(UserPreference.User_ID).label('user_count')
+        )
+        .join(UserPreference, Category.Category_ID == UserPreference.Category_ID)
+        .group_by(Category.Category_ID, Category.Category)
+        .all()
+    )
+    
+    return [
+        {
+            "Category_ID": stat[0],
+            "Category": stat[1],
+            "User_Count": stat[2]
+        }
+        for stat in stats
+    ]
