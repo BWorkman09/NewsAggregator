@@ -118,10 +118,11 @@ def get_all_articles(limit: int = 250) -> List[Article]:
 def get_articles_by_category_name(category_name: Optional[str] = None, limit: int = 250) -> List[tuple]:
     """
     Retrieve articles with their associated category details, filtered by category name.
+    Supports case-insensitive and partial word matching.
     Default limit is 250 if not specified.
    
     Args:
-        category_name (str, optional): Category name to filter articles
+        category_name (str, optional): Category name to filter articles (case-insensitive, partial match)
         limit (int): Maximum number of Article objects to retrieve.
    
     Returns:
@@ -133,7 +134,7 @@ def get_articles_by_category_name(category_name: Optional[str] = None, limit: in
     )
    
     if category_name is not None:
-        query = query.filter(Category.Category == category_name)
+        query = query.filter(Category.Category.ilike(f'%{category_name}%'))
    
     return query.limit(limit).all()
 

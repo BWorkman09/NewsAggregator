@@ -275,22 +275,21 @@ def get_articles():
 def get_articles_by_category_name():
     """
     Retrieve a list of articles filtered by category name.
-    
+    Supports case-insensitive and partial word matching.
+   
     Query Parameters:
-        category (str): Name of the category to filter by
+        category (str): Name of the category to filter by (case-insensitive, partial match)
         limit (int): Maximum number of articles to retrieve (default: 250)
-    
+   
     Returns:
         tuple: A tuple containing a JSON response with filtered articles and an HTTP status code 200.
     """
     category_name = request.args.get('category', default=None, type=str)
     limit = request.args.get('limit', default=250, type=int)
-    
+   
     try:
-        # Get articles from service
         article_list = services.get_articles_by_category_name(category_name, limit)
-        
-        # Convert the results to a list of dictionaries
+       
         article_dict_list = []
         for article, category in article_list:
             article_dict = {
@@ -303,11 +302,11 @@ def get_articles_by_category_name():
                 "Description": str(category.Description)
             }
             article_dict_list.append(article_dict)
-        
+       
         response = jsonify(article_dict_list)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
-        
+       
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
