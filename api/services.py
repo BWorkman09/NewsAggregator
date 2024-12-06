@@ -78,20 +78,51 @@ def update_user_name(user_id: str, new_name: str):
         raise e
 
 
-def delete_user(user_id: str):
+def delete_user(user_id: str) -> tuple[bool, dict]:
     """
-    Delete a user from the database.
+    Delete a user and their associated preferences from the database.
+    
+    Args:
+        user_id (str): The user's ID in format XX-XXXXXXX
+        
+    Returns:
+        tuple[bool, dict]: (Success status, User data if found)
     """
     try:
+        # Validate user ID format
+        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+            raise ValueError('Invalid user ID format. Must be XX-XXXXXXX')
+        
+        # Check if user exists and get their data before deletion
         user = User.query.filter_by(User_ID=user_id).first()
-        if user:
-            db.session.delete(user)
-            db.session.commit()
-            return True
-        return False
+        if not user:
+            return False, {}
+        
+        # Store user data for response
+        user_data = {
+            "User_ID": user.User_ID,
+            "Name": user.Name,
+            # Add any other user fields you want to include in the response
+        }
+        
+        # Get associated preferences before deletion for the response
+        preferences = UserPreference.query.filter_by(User_ID=user_id).join(
+            Category,
+            UserPreference.Category_ID == Category.Category_ID
+        ).with_entities(Category.Category).all()
+        
+        user_data["preferences"] = [pref[0] for pref in preferences]
+        
+        # Delete user (will cascade to preferences if set up in model)
+        db.session.delete(user)
+        db.session.commit()
+        
+        return True, user_data
+        
     except Exception as e:
         db.session.rollback()
         raise e
+    
 
 # ---------------------------------------------------------
 # Category Functions

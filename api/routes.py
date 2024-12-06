@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
-from api.services import update_user_name, update_user_preferences, delete_user_preference, get_user_preference_stats, create_user, get_all_user_preferences
+from api.services import update_user_name, update_user_preferences, delete_user_preference, get_user_preference_stats, create_user, get_all_user_preferences, delete_user
 from datetime import datetime
 import sqlite3
 from .models import User, db
@@ -118,42 +118,35 @@ def create_user_route():
 @api_bp.route('/users/<string:user_id>', methods=['DELETE'])
 def delete_user_route(user_id):
     """
-    Delete a user via DELETE request.
-    Expects user_id in format XX-XXXXXXX
+    Delete a user and their preferences via DELETE request.
     """
     try:
-        # Validate user_id format
-        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+        deleted, user_data = delete_user(user_id)
+        
+        if deleted:
             return jsonify({
-                'error': 'Invalid user ID format',
-                'message': 'User ID must be in format XX-XXXXXXX'
-            }), 400
-
-        # Check if user exists
-        user = User.query.filter_by(User_ID=user_id).first()
-        if not user:
+                'message': 'User deleted successfully',
+                'user': user_data
+            }), 200
+        else:
             return jsonify({
                 'error': 'User not found',
                 'message': f'No user found with ID {user_id}'
             }), 404
-
-        # Delete user and their preferences (will cascade if set up in model)
-        db.session.delete(user)
-        db.session.commit()
-
+            
+    except ValueError as e:
         return jsonify({
-            'message': 'User deleted successfully',
-            'user_id': user_id
-        }), 200
-
+            'error': 'Validation error',
+            'message': str(e)
+        }), 400
     except Exception as e:
-        db.session.rollback()
         print(f"Error deleting user: {str(e)}")  # For debugging
         return jsonify({
             'error': 'Failed to delete user',
             'message': str(e)
         }), 500
-    
+
+
 @api_bp.route('/users/<string:user_id>', methods=['PUT'])
 def update_user_route(user_id):
     """
