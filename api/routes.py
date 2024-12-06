@@ -334,7 +334,7 @@ def get_user_preferences():
 def update_user_preference_route(user_id):
     """
     Update a user's preferences via PUT request.
-    Expects JSON data with 'categories' field containing a list of Category_IDs.
+    Expects JSON data with 'categories' field containing a list of category names.
     """
     try:
         data = request.get_json()
@@ -349,9 +349,9 @@ def update_user_preference_route(user_id):
         if not categories or not isinstance(categories, list):
             return jsonify({
                 'error': 'Categories are required',
-                'message': 'Categories field must be provided as a list'
+                'message': 'Categories field must be provided as a list of category names'
             }), 400
-
+        
         updated_preferences = update_user_preferences(user_id, categories)
         
         if updated_preferences:
@@ -375,7 +375,6 @@ def update_user_preference_route(user_id):
             'error': 'Failed to update user preferences',
             'message': str(e)
         }), 500
-
 
 
 
