@@ -9,26 +9,24 @@ class User(db.Model):
     Name = db.Column(db.String(100), nullable=False)
     Email = db.Column(db.String(120), unique=True, nullable=False)
     preferences = db.relationship(
-        'UserPreference', 
-        backref='user', 
+        'UserPreference',
+        backref='user',
         lazy=True,
         cascade="all, delete-orphan"
     )
-
+    
     @staticmethod
     def generate_user_id():
         """Generate ID in format: XX-XXXXXXX with random 2-digit prefix"""
-        # Generate random 2-digit prefix (10-99)
         prefix = f"{random.randint(10, 99)}"
-        # Generate a 7-digit number
         num = f"{random.randint(1000000, 9999999):07d}"
         return f"{prefix}-{num}"
-
-    def __init__(self, Name, Email):
-        self.User_ID = User.generate_user_id()
+    
+    def __init__(self, User_ID, Name, Email):
+        self.User_ID = User_ID
         self.Name = Name
         self.Email = Email
-   
+    
     def to_dict(self):
         return {
             "User_ID": self.User_ID,

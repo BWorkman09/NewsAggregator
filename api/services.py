@@ -27,19 +27,30 @@ def get_users_by_name(name_filter: str, starts_with: bool = True) -> List[User]:
         return User.query.filter(User.Name.like(f'{name_filter}%')).all()
     return User.query.filter(User.Name.like(f'%{name_filter}%')).all()
 
-def create_user(name: str, email: str):
-    """
-    Create a new user in the database.
-    """
-    new_user = User(Name=name, Email=email)
+def create_user(name: str, email: str) -> User:
+    """Create a new user with a unique ID in format XX-XXXXXXX"""
     try:
+        # Generate unique user ID
+        while True:
+            user_id = User.generate_user_id()
+            if not User.query.get(user_id):
+                break
+        
+        # Create new user with ID
+        new_user = User(
+            User_ID=user_id,
+            Name=name,
+            Email=email
+        )
+        
         db.session.add(new_user)
         db.session.commit()
-        db.session.refresh(new_user)
         return new_user
+        
     except Exception as e:
         db.session.rollback()
         raise e
+
 
 def update_user_name(user_id: str, new_name: str):
     """

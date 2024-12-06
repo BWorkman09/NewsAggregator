@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
-from api.services import update_user_name, update_user_preference, delete_user_preference, get_user_preference_stats
+from api.services import update_user_name, update_user_preference, delete_user_preference, get_user_preference_stats, create_user
 from datetime import datetime
 import sqlite3
 from .models import User, db
@@ -75,56 +75,45 @@ def get_users():
 
 @api_bp.route('/users', methods=['POST'])
 def create_user_route():
-    """
-    Create a new user via POST request.
-    Expects JSON data with 'Name' and 'Email' fields.
-    """
     try:
         data = request.get_json()
-       
+        
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-           
+            
         name = data.get('Name')
         email = data.get('Email')
-       
+        
         if not name or not email:
             return jsonify({'error': 'Name and Email are required'}), 400
-       
-        # Check if user already exists
+        
+        # Check for existing email before trying to create
         existing_user = User.query.filter_by(Email=email).first()
         if existing_user:
             return jsonify({'error': 'Email already exists'}), 409
-           
-        # Create new user with automatic ID generation
-        new_user = User(Name=name, Email=email)
-        db.session.add(new_user)
-        db.session.flush()  # Flush the session to get the ID
-       
-        # Get the user data before commit
-        user_data = new_user.to_dict()
-       
-        db.session.commit()
-       
+            
+        # Create user using service function
+        user = create_user(name=name, email=email)
+        
         return jsonify({
             'message': 'User created successfully',
-            'user': user_data
+            'user': user.to_dict()
         }), 201
-       
-    except IntegrityError as e:
+        
+    except IntegrityError:
         db.session.rollback()
         return jsonify({
             'error': 'Database integrity error',
             'message': 'Email must be unique'
         }), 409
-       
+        
     except Exception as e:
         db.session.rollback()
-        print(f"Error creating user: {str(e)}")  # For debugging
         return jsonify({
             'error': 'Failed to create user',
             'message': str(e)
         }), 500
+
 
 @api_bp.route('/users/<string:user_id>', methods=['DELETE'])
 def delete_user_route(user_id):
