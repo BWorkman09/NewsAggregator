@@ -378,32 +378,27 @@ def update_user_preference_route(user_id):
 
 
 
-@api_bp.route('/user_preferences/<string:user_id>/<string:category_id>', methods=['DELETE'])
-def delete_user_preference_route(user_id, category_id):
+@api_bp.route('/user_preferences/<string:user_id>/<string:category_name>', methods=['DELETE'])
+def delete_user_preference_route(user_id, category_name):
     """
-    Delete a specific user preference via DELETE request.
+    Delete a specific user preference via DELETE request using category name.
     """
     try:
-        # Validate user_id format
-        if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
-            return jsonify({
-                'error': 'Invalid user ID format',
-                'message': 'User ID must be in format XX-XXXXXXX'
-            }), 400
-
-        # Check if preference was deleted
-        if delete_user_preference(user_id, category_id):
+        # Delete the preference
+        deleted, category = delete_user_preference(user_id, category_name)
+        
+        if deleted:
             return jsonify({
                 'message': 'User preference deleted successfully',
                 'user_id': user_id,
-                'category_id': category_id
+                'category': category
             }), 200
         else:
             return jsonify({
                 'error': 'Preference not found',
-                'message': f'No preference found for user {user_id} and category {category_id}'
+                'message': f'No preference found for user {user_id} and category {category}'
             }), 404
-
+            
     except ValueError as e:
         return jsonify({
             'error': 'Validation error',

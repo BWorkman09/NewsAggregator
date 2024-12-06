@@ -289,36 +289,48 @@ def update_user_preferences(user_id: str, category_names: List[str]) -> List[dic
         raise e
     
     
-def delete_user_preference(user_id: str, category_id: str):
+def delete_user_preference(user_id: str, category_name: str):
     """
-    Delete a specific user preference from the database.
+    Delete a specific user preference from the database using category name.
     
     Args:
         user_id (str): The user's ID in format XX-XXXXXXX
-        category_id (str): Category ID to remove from user's preferences
+        category_name (str): Category name to remove from user's preferences
     
     Returns:
-        bool: True if preference was deleted, False if not found
+        tuple: (bool, str) - (Success status, Category name if found)
     """
     try:
         # Validate user ID format
         if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
             raise ValueError('Invalid user ID format. Must be XX-XXXXXXX')
         
+        # Normalize category name
+        normalized_category = category_name.upper().strip()
+        
+        # First find the category by name
+        category = Category.query.filter(
+            Category.Category == normalized_category
+        ).first()
+        
+        if not category:
+            raise ValueError(f'Invalid category name: {category_name}')
+        
+        # Find and delete the preference
         preference = UserPreference.query.filter_by(
             User_ID=user_id,
-            Category_ID=category_id
+            Category_ID=category.Category_ID
         ).first()
         
         if preference:
             db.session.delete(preference)
             db.session.commit()
-            return True
-        return False
+            return True, category.Category
+        return False, category.Category
         
     except Exception as e:
         db.session.rollback()
-        raise e    
+        raise e
 
 def get_user_preference_stats() -> List[Dict]:
     """
