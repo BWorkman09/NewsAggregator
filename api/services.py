@@ -103,18 +103,22 @@ def get_all_categories(limit: int = None) -> List[Category]:
 # Article Functions
 # ---------------------------------------------------------
 
-def get_all_articles(limit: int = 250) -> List[Article]:
+def get_all_articles(limit: int = 250) -> List[tuple]:
     """
-    Retrieve articles from the database with a specified limit.
-    Default limit is 250 if not specified.
-   
+    Retrieve articles with their associated category details up to the specified limit.
+    
     Args:
-        limit (int): Maximum number of Article objects to retrieve.
-   
+        limit (int): Maximum number of articles to retrieve.
+    
     Returns:
-        List[Article]: A list of Article objects up to the specified limit.
+        List[tuple]: A list of tuples containing Article and Category objects
     """
-    return Article.query.limit(limit).all()
+    return (
+        db.session.query(Article, Category)
+        .join(Category, Article.Category_ID == Category.Category_ID)
+        .limit(limit)
+        .all()
+    )
 
 def get_articles_by_category_name(category_name: Optional[str] = None, limit: int = 250) -> List[tuple]:
     """

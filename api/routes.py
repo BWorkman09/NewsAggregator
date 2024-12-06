@@ -237,59 +237,19 @@ def get_categories():
 @api_bp.route('/articles')
 def get_articles():
     """
-    Retrieve a list of articles with an optional limit parameter.
-   
+    Retrieve a list of articles with category information and an optional limit parameter.
+    
     Query Parameters:
         limit (int): Maximum number of articles to retrieve
-   
+    
     Returns:
         tuple: A tuple containing a JSON response with articles and an HTTP status code 200.
     """
-    # Get the 'limit' parameter from the URL if provided, otherwise use default limit
     limit = request.args.get('limit', default=250, type=int)
-   
-    try:
-        # Get articles from the service with the specified limit
-        article_list = services.get_all_articles(limit)
-       
-        # Convert the list of Article objects to a list of dictionaries
-        article_dict_list = []
-        for article in article_list:
-            article_dict = {
-                "Article_ID": article.Article_ID,
-                "Title": str(article.Title),
-                "Content": str(article.Content),
-                "Category_ID": article.Category_ID,
-                "URL": str(article.URL) if article.URL else None
-            }
-            article_dict_list.append(article_dict)
-       
-        response = jsonify(article_dict_list)
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response, 200
-       
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
     
-@api_bp.route('/articles/by-category-name')
-def get_articles_by_category_name():
-    """
-    Retrieve a list of articles filtered by category name.
-    Supports case-insensitive and partial word matching.
-   
-    Query Parameters:
-        category (str): Name of the category to filter by (case-insensitive, partial match)
-        limit (int): Maximum number of articles to retrieve (default: 250)
-   
-    Returns:
-        tuple: A tuple containing a JSON response with filtered articles and an HTTP status code 200.
-    """
-    category_name = request.args.get('category', default=None, type=str)
-    limit = request.args.get('limit', default=250, type=int)
-   
     try:
-        article_list = services.get_articles_by_category_name(category_name, limit)
-       
+        article_list = services.get_all_articles(limit)
+        
         article_dict_list = []
         for article, category in article_list:
             article_dict = {
@@ -298,15 +258,56 @@ def get_articles_by_category_name():
                 "Content": str(article.Content),
                 "Category_ID": article.Category_ID,
                 "URL": str(article.URL) if article.URL else None,
+                "Authors": str(article.Authors) if article.Authors else None,
                 "Category": str(category.Category),
                 "Description": str(category.Description)
             }
             article_dict_list.append(article_dict)
-       
+        
         response = jsonify(article_dict_list)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
-       
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/articles/by-category-name')
+def get_articles_by_category_name():
+    """
+    Retrieve a list of articles filtered by category name.
+    Supports case-insensitive and partial word matching.
+    
+    Query Parameters:
+        category (str): Name of the category to filter by (case-insensitive, partial match)
+        limit (int): Maximum number of articles to retrieve (default: 250)
+    
+    Returns:
+        tuple: A tuple containing a JSON response with filtered articles and an HTTP status code 200.
+    """
+    category_name = request.args.get('category', default=None, type=str)
+    limit = request.args.get('limit', default=250, type=int)
+    
+    try:
+        article_list = services.get_articles_by_category_name(category_name, limit)
+        
+        article_dict_list = []
+        for article, category in article_list:
+            article_dict = {
+                "Article_ID": article.Article_ID,
+                "Title": str(article.Title),
+                "Content": str(article.Content),
+                "Category_ID": article.Category_ID,
+                "URL": str(article.URL) if article.URL else None,
+                "Authors": str(article.Authors) if article.Authors else None,
+                "Category": str(category.Category),
+                "Description": str(category.Description)
+            }
+            article_dict_list.append(article_dict)
+        
+        response = jsonify(article_dict_list)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 200
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

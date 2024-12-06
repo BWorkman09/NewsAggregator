@@ -65,20 +65,22 @@ class Category(db.Model):
 
 class Article(db.Model):
     __tablename__ = 'article'
-    
+   
     Article_ID = db.Column(db.Integer, primary_key=True)
     Title = db.Column(db.String(200), nullable=False)
     Content = db.Column(db.Text, nullable=False)
     Category_ID = db.Column(db.Integer, db.ForeignKey('category.Category_ID'), nullable=False)
-    URL = db.Column(db.String(500), nullable=True)  # New field
-    
+    URL = db.Column(db.String(500), nullable=True)
+    Authors = db.Column(db.String(500), nullable=True)
+   
     def to_dict(self):
         return {
             "Article_ID": self.Article_ID,
             "Title": self.Title,
             "Content": self.Content,
             "Category_ID": self.Category_ID,
-            "URL": self.URL
+            "URL": self.URL,
+            "Authors": self.Authors
         }
     
     
