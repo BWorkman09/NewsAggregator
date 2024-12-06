@@ -34,19 +34,26 @@ class User(db.Model):
             "Email": self.Email
         }
 
+
 class UserPreference(db.Model):
     __tablename__ = 'user_preference'
     
     User_ID = db.Column(db.String, db.ForeignKey('user.User_ID'), primary_key=True)
     Category_ID = db.Column(db.String, db.ForeignKey('category.Category_ID'), primary_key=True)
-
+    
+    # Add relationships without conflicting backrefs
+    user_relation = db.relationship('User')
+    category_relation = db.relationship('Category')
+    
     def to_dict(self):
         return {
-            "User_ID": self.User_ID, 
-            "Category_ID": self.Category_ID
+            "User_ID": self.User_ID,
+            "Category_ID": self.Category_ID,
+            "Category": self.category_relation.Category if self.category_relation else None,
+            "Name": self.user_relation.Name if self.user_relation else None
         }
+    
 
-   
 class Category(db.Model):
     __tablename__ = 'category'  
     Category_ID = db.Column(db.Integer, primary_key=True)

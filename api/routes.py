@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 import api.services as services
-from api.services import update_user_name, update_user_preference, delete_user_preference, get_user_preference_stats, create_user
+from api.services import update_user_name, update_user_preferences, delete_user_preference, get_user_preference_stats, create_user, get_all_user_preferences
 from datetime import datetime
 import sqlite3
 from .models import User, db
@@ -302,31 +302,39 @@ def create_article():
 @api_bp.route('/user_preferences')
 def get_user_preferences():
     """
-    Retrieve a list of user preferences with optional limit parameter.
+    Retrieve a consolidated list of user preferences with optional filters.
+    Supports filtering by name and limiting results.
+    
+    Query Parameters:
+        limit (int): Maximum number of users to return
+        name (str): Filter users by name (case-insensitive partial match)
+    
     Returns:
-        tuple: A tuple containing a JSON response with user preferences and an HTTP status code 200.
+        tuple: A tuple containing a JSON response with consolidated user preferences 
+        and an HTTP status code 200.
     """
     limit = request.args.get('limit', default=None, type=int)
+    name = request.args.get('name', default=None, type=str)
     
-    user_preferences_with_categories = services.get_all_user_preferences(limit)
-    
-    user_preferences_dict_list = [
-        {
-            "User_ID": pref[0].User_ID,
-            "Category_ID": pref[0].Category_ID,  # Will return something like "ENL501"
-            "Category": pref[1]  # Will return something like "SPORTS"
-        }
-        for pref in user_preferences_with_categories
-    ]
-    
-    return jsonify(user_preferences_dict_list), 200
+    try:
+        consolidated_preferences = get_all_user_preferences(limit=limit, name=name)
+        return jsonify({
+            "total_users": len(consolidated_preferences),
+            "users": consolidated_preferences
+        }), 200
+    except Exception as e:
+        print(f"Error in get_user_preferences: {str(e)}")  # Debug logging
+        return jsonify({
+            'error': 'Failed to retrieve user preferences',
+            'message': str(e)
+        }), 500
 
 
 @api_bp.route('/user_preferences/<string:user_id>', methods=['PUT'])
 def update_user_preference_route(user_id):
     """
-    Update a user's preference via PUT request.
-    Expects JSON data with 'Category_ID' field.
+    Update a user's preferences via PUT request.
+    Expects JSON data with 'categories' field containing a list of Category_IDs.
     """
     try:
         data = request.get_json()
@@ -337,37 +345,39 @@ def update_user_preference_route(user_id):
                 'message': 'Request body is required'
             }), 400
             
-        category_id = data.get('Category_ID')
-        if not category_id:
+        categories = data.get('categories')
+        if not categories or not isinstance(categories, list):
             return jsonify({
-                'error': 'Category_ID is required',
-                'message': 'Category_ID field must be provided'
+                'error': 'Categories are required',
+                'message': 'Categories field must be provided as a list'
             }), 400
 
-        updated_preference = update_user_preference(user_id, category_id)
+        updated_preferences = update_user_preferences(user_id, categories)
         
-        if updated_preference:
+        if updated_preferences:
             return jsonify({
-                'message': 'User preference updated successfully',
-                'preference': updated_preference
+                'message': 'User preferences updated successfully',
+                'preferences': updated_preferences
             }), 200
         else:
             return jsonify({
-                'error': 'Failed to update preference',
-                'message': 'Unable to create or update preference'
+                'error': 'Failed to update preferences',
+                'message': 'Unable to create or update preferences'
             }), 500
-
     except ValueError as e:
         return jsonify({
             'error': 'Validation error',
             'message': str(e)
         }), 400
     except Exception as e:
-        print(f"Error updating user preference: {str(e)}")  # For debugging
+        print(f"Error updating user preferences: {str(e)}")  # For debugging
         return jsonify({
-            'error': 'Failed to update user preference',
+            'error': 'Failed to update user preferences',
             'message': str(e)
         }), 500
+
+
+
 
 @api_bp.route('/user_preferences/<string:user_id>/<string:category_id>', methods=['DELETE'])
 def delete_user_preference_route(user_id, category_id):
@@ -406,6 +416,8 @@ def delete_user_preference_route(user_id, category_id):
             'error': 'Failed to delete user preference',
             'message': str(e)
         }), 500
+
+
 
 @api_bp.route('/user-preferences/stats')
 def get_preference_statistics():

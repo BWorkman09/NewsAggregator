@@ -6,6 +6,7 @@ import sqlite3
 import re
 from sqlalchemy import func
 
+
 # ---------------------------------------------------------
 # Users Functions
 # ---------------------------------------------------------
@@ -158,39 +159,75 @@ def get_articles_by_category_name(category_name: Optional[str] = None, limit: in
 # User Preference Functions
 # ---------------------------------------------------------
 
-def get_all_user_preferences(limit: int = None) -> List[UserPreference]:
+def get_all_user_preferences(limit: int = None, name: str = None) -> List[dict]:
     """
-    Retrieve user preferences from the database with a specified limit.
-    
+    Retrieve consolidated user preferences from the database with optional filters.
+   
     Args:
-        limit (int): Maximum number of UserPreference objects to retrieve.
+        limit (int): Maximum number of users to retrieve preferences for.
+        name (str): Filter users by name (case-insensitive partial match)
     Returns:
-        List[UserPreference]: A list of UserPreference objects up to the specified limit.
+        List[dict]: A list of dictionaries containing user information and their preferences.
     """
+    # First, get the filtered user IDs if name is provided
+    user_query = db.session.query(User.User_ID)
+    if name:
+        user_query = user_query.filter(User.Name.ilike(f'%{name}%'))
+    if limit:
+        user_query = user_query.limit(limit)
+    filtered_user_ids = user_query.all()
+    
+    # If name filter is applied and no users found, return empty list
+    if name and not filtered_user_ids:
+        return []
+    
+    # Get preferences for filtered users
     query = db.session.query(
-        UserPreference, 
-        Category.Category  # Using the Category column directly
+        UserPreference,
+        Category.Category,
+        User.Name
     ).join(
         Category,
         UserPreference.Category_ID == Category.Category_ID
+    ).join(
+        User,
+        UserPreference.User_ID == User.User_ID
     )
     
-    if limit:
-        query = query.limit(limit)
+    if filtered_user_ids:
+        user_ids = [uid[0] for uid in filtered_user_ids]
+        query = query.filter(UserPreference.User_ID.in_(user_ids))
+
+    results = query.all()
     
-    return query.all()
+    # Group preferences by user
+    user_preferences = {}
+    for pref, category, user_name in results:
+        if pref.User_ID not in user_preferences:
+            user_preferences[pref.User_ID] = {
+                "User_ID": pref.User_ID,
+                "Name": user_name,
+                "Preferences": []
+            }
+        
+        user_preferences[pref.User_ID]["Preferences"].append({
+            "Category_ID": pref.Category_ID,
+            "Category": category
+        })
+    
+    return list(user_preferences.values())
 
 
-def update_user_preference(user_id: str, category_id: str):
+def update_user_preferences(user_id: str, category_ids: List[str]) -> List[dict]:
     """
-    Update a user's preference in the database.
+    Update a user's preferences in the database.
     
     Args:
         user_id (str): The user's ID in format XX-XXXXXXX
-        category_id (str): Category ID to add as user's preference
+        category_ids (List[str]): List of Category IDs to set as user's preferences
         
     Returns:
-        dict: Updated user preference with category information
+        List[dict]: List of updated user preferences with category information
     """
     try:
         # Validate user ID format
@@ -202,36 +239,45 @@ def update_user_preference(user_id: str, category_id: str):
         if not user:
             raise ValueError(f'No user found with ID {user_id}')
         
-        # Check if category exists
-        category = Category.query.filter_by(Category_ID=category_id).first()
-        if not category:
-            raise ValueError(f'Invalid category ID: {category_id}')
+        # Validate all category IDs exist
+        existing_categories = Category.query.filter(Category.Category_ID.in_(category_ids)).all()
+        if len(existing_categories) != len(category_ids):
+            found_ids = {cat.Category_ID for cat in existing_categories}
+            invalid_ids = set(category_ids) - found_ids
+            raise ValueError(f'Invalid category IDs: {", ".join(invalid_ids)}')
         
-        # Create new preference (will replace if exists due to primary key constraint)
-        preference = UserPreference(User_ID=user_id, Category_ID=category_id)
-        db.session.merge(preference)
-        db.session.commit()
+        # Start transaction
+        with db.session.begin():
+            # Remove existing preferences
+            UserPreference.query.filter_by(User_ID=user_id).delete()
+            
+            # Create new preferences
+            new_preferences = [
+                UserPreference(User_ID=user_id, Category_ID=cat_id)
+                for cat_id in category_ids
+            ]
+            db.session.bulk_save_objects(new_preferences)
+            db.session.flush()
         
-        # Get updated preference with category information
-        result = db.session.query(
-            UserPreference, 
-            Category.Category
-        ).join(
-            Category,
-            UserPreference.Category_ID == Category.Category_ID
-        ).filter(
-            UserPreference.User_ID == user_id,
-            UserPreference.Category_ID == category_id
-        ).first()
-        
-        if result:
-            return {
-                "User_ID": result[0].User_ID,
-                "Category_ID": result[0].Category_ID,
-                "Category": result[1]
-            }
-        return None
-        
+            # Get updated preferences with category information
+            results = db.session.query(
+                UserPreference,
+                Category.Category
+            ).join(
+                Category,
+                UserPreference.Category_ID == Category.Category_ID
+            ).filter(
+                UserPreference.User_ID == user_id
+            ).all()
+            
+            if results:
+                return [{
+                    "User_ID": pref.User_ID,
+                    "Category_ID": pref.Category_ID,
+                    "Category": category
+                } for pref, category in results]
+            return []
+            
     except Exception as e:
         db.session.rollback()
         raise e
