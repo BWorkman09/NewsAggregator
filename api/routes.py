@@ -292,7 +292,7 @@ def create_article():
 # ---------------------------------------------------------
 # User Preference
 # ---------------------------------------------------------
-@api_bp.route('/user_preferences')
+@api_bp.route('/user_preferences', methods=['GET'])
 def get_user_preferences():
     """
     Retrieve a consolidated list of user preferences with optional filters.
