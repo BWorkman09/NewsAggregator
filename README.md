@@ -12,10 +12,7 @@ Allow anonymous access to ‘public’ sections of the site. ​
 
 Allow users to select their preferences from different news categories. ​
 
-Allow users to bookmark content. ​
-
 Allow users to access preference-analytics and activity-analytics dashboards. ​
-
 
 
 # Base URL
@@ -108,3 +105,11 @@ The base URL for all the routes is /api. Here's a Markdown version of your OpenA
 ### Response Codes
 - `200 OK`: User preferences found.
 - `404 Not Found`: User preferences not found.
+
+## Create / Add User Preferences
+- **URL**: `/user_preferences/{user_id}/category`
+- **Method**: `PUT`
+
+## Delete User Preferences
+- **URL**: `/user_preferences/{user_id}/category`
+- **Method**: `DELETE`
