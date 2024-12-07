@@ -261,7 +261,7 @@ def update_user_preferences(user_id: str, category_names: List[str]) -> List[dic
         List[dict]: List of updated user preferences with category information
     """
     # Validate user ID format
-    if not user_id or not isinstance(user_id, str) or not re.match(r'^\d{2}-\d{7}$', user_id):
+    if not user_id or not isinstance(user_id, str):
         raise ValueError('Invalid user ID format. Must be XX-XXXXXXX')
     
     # Check if user exists
