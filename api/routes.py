@@ -97,6 +97,7 @@ def create_user_route():
         
         return jsonify({
             'message': 'User created successfully',
+            'User_ID': user.User_ID,
             'user': user.to_dict()
         }), 201
         
